@@ -1,0 +1,100 @@
+server:
+  port: 36601
+  max-http-header-size: 10485760
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 1000
+    max-connections: 20000
+
+spring:
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  application:
+    name: alice-server-application
+#  rabbitmq:
+#    addresses: 172.21.32.15:5672
+#    username: guest
+#    password: mq
+#    #    cache:
+#    #      connection:
+#    #        size: 100
+#    listener:
+#      retry:
+#        max-interval: 3
+#        enabled: true
+#        initial-interval: 3000
+#      default-requeue-rejected: true
+#  redis:
+#    session:
+#      enabled: true
+#    packages-to-scan: "ru.reimu.alice"
+#    expired-time: 3600
+#    page-size: 20
+#    host: "172.21.32.15"
+#    port: 6379
+#    database: 0
+#    pool:
+#      max-active: 300
+#      min-idle: 100
+#      max-idle: 100
+#      max-wait: 1000
+#    password: "redi"
+#    timeout: 10000
+  jpa:
+    enabled: true
+    enable-transaction: true
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        #dialect: "ru.reimu.alice.datasource.jpa.extension.MySQLDefineDialect"
+        show_sql: true
+
+appserver:
+  active: prod
+  jdbc:
+    enable-lazy-proxy: true
+    enable-dynamic-switch: true
+    default-data-source:
+      name: "default"
+      base-url: "jdbc:mysql://127.0.0.1:3306"
+      db: "drools-demo"
+      search-url: "rewriteBatchedStatements=true&useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true"
+      # driver-class-name: "com.mysql.jdbc.Driver"
+      username: "root"
+      password: "123456"
+      # initial-size: 50
+      minimum-idle: 50
+      maximum-pool-size: 100
+      # max-active: 400
+      connection-timeout: 2000 # max-wait: 2000
+      # test-while-idle: true
+      # test-on-borrow: true
+      # test-on-return: false
+      validation-timeout: 1000 # validation-interval: 30000
+      connection-init-sql: "select 1" # validation-query: "select 1"
+      # time-between-eviction-runs-millis: 30000
+      # min-evictable-idle-time-millis: 300000
+      # remove-abandoned-timeout: 120
+      # remove-abandoned: true
+      read-only: false # default-read-only: false
+      auto-commit: true # default-auto-commit: true
+  #    data-source:
+  #      - {name: "slave",db: "aaaa",base-url: "jdbc:mysql://127.0.0.1:3306",username : "root", password: "123456",search-url: "rewriteBatchedStatements=true&useUnicode=true&characterEncoding=utf8&useSSL=true"}
+  #      - {name: "dddd",db: "", base-url: ""}
+  jpa:
+    enabled: true
+    enable-transaction: true
+  mybatis:
+    enabled: true
+    type-aliases-package: "ru.reimu.alice.persist.dto"
+    type-handlers-package: "ru.reimu.alice.persist.typeHandler"
+    mapper-locations: "classpath:mapper/*.xml"
+#  shiro:
+#    enabled: true
+  drools:
+    enabled: true
