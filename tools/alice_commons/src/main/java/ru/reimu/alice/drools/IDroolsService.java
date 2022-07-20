@@ -25,5 +25,6 @@ public interface IDroolsService<E> {
      * 根据ruleName、ruleId删除
      * @param entity
      */
-    void deleteRule(E entity) throws Exception;
+    void deleteRule(E entity,
+                    String ruleName) throws Exception;
 }

@@ -1,5 +1,6 @@
 package ru.reimu.alice.drools;
 
+import org.drools.compiler.compiler.DroolsParserException;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.compiler.kie.builder.impl.KieContainerImpl;
 import org.kie.api.KieBase;
@@ -10,10 +11,14 @@ import org.kie.api.builder.Message;
 import org.kie.api.builder.Results;
 import org.kie.api.builder.model.KieBaseModel;
 import org.kie.api.builder.model.KieModuleModel;
+import org.kie.api.definition.KiePackage;
+import org.kie.api.definition.rule.Rule;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.reimu.alice.constant.ErrorCode;
+import ru.reimu.alice.exception.EXPF;
 
 import java.util.Collection;
 import java.util.List;
@@ -96,18 +101,28 @@ public class RuleManager {
      */
     public void deleteDroolsRule(String kieBaseName,
                                  String packageName,
-                                 String ruleName) {
+                                 String ...ruleName) {
         if (existsKieBase(kieBaseName)) {
             KieBase kieBase = kieContainer.getKieBase(kieBaseName);
-            kieBase.removeRule(packageName, ruleName);
-            log.info("删除kieBase:[{}]包:[{}]下的规则:[{}]", kieBaseName, packageName, ruleName);
+            if (ruleName.length > 0) {
+                for (String s : ruleName) {
+                    kieBase.removeRule(packageName, s);
+                }
+            } else {
+                KiePackage kiePackage = kieBase.getKiePackage(packageName);
+                for (Rule rule : kiePackage.getRules()) {
+                    kieBase.removeRule(packageName, rule.getName());
+                }
+            }
+
+            log.info("删除kieBase:[{}]包:[{}]下的规则", kieBaseName, packageName);
         }
     }
 
     public void addOrUpdateRule(Long ruleId,
                                 String kieBaseName,
                                 String kiePackageName,
-                                String ruleContent) {
+                                String ruleContent) throws Exception {
         // 判断该kbase是否存在
         boolean existsKieBase = existsKieBase(kieBaseName);
         // 该对象对应kmodule.xml中的kbase标签
@@ -156,7 +171,7 @@ public class RuleManager {
             for (Message message : messages) {
                 log.error(message.getText());
             }
-            throw new RuntimeException("加载规则出现异常");
+            throw EXPF.exception(ErrorCode.NoPermissionToUse, "规则内容语法有误", true);
         }
         // KieContainer只有第一次时才需要创建，之后就是使用这个
         if (null == kieContainer) {
