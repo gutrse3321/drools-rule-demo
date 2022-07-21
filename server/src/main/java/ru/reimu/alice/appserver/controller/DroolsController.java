@@ -41,4 +41,12 @@ public class DroolsController {
                                     Integer param) throws Exception {
         return MVF.filterData(droolsService.triggerRule(baseName, param));
     }
+
+    @PostMapping("deleteRule")
+    public ModelAndView deleteRule(Long ruleId) throws Exception {
+        RuleEntity ent = new RuleEntity();
+        ent.setId(ruleId);
+        droolsService.deleteRule(ent, null);
+        return MVF.msgData(Constant.MsgData.Del);
+    }
 }

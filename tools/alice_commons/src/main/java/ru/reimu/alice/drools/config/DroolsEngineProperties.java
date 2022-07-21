@@ -1,4 +1,4 @@
-package ru.reimu.alice.drools;
+package ru.reimu.alice.drools.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

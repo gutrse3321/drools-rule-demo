@@ -18,6 +18,7 @@ import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.reimu.alice.constant.ErrorCode;
+import ru.reimu.alice.drools.model.RuleDataModel;
 import ru.reimu.alice.exception.EXPF;
 
 import java.util.Collection;
@@ -58,24 +59,28 @@ public class RuleManager {
      * 触发规则
      * @param kieBaseName
      * @param insertParam
-     * @param globalName
-     * @param globalData
      * @param <T> 插入值
      * @param <R> 返回对象
      * @return
      */
-    public <T, R> R fireRule(String kieBaseName,
-                             T insertParam,
-                             String globalName,
-                             R globalData) {
-        KieSession session = getSession(kieBaseName);
-        if (globalName != null && globalName.length() > 0 && globalData != null) {
-            session.setGlobal(globalName, globalData);
+    public <T, R> RuleDataModel<R> fireRule(String kieBaseName,
+                                            T insertParam) throws Exception {
+        KieSession session;
+        try {
+            session = getSession(kieBaseName);
+        } catch (Exception e) {
+            if (e instanceof NullPointerException) {
+                throw EXPF.exception(ErrorCode.DataNotExists, "没有找到此规则", true);
+            }
+            throw EXPF.exception(ErrorCode.DataException, "获取规则会话失败", true);
         }
+        RuleDataModel<R> model = new RuleDataModel<>();
+        model.setKieBaseName(kieBaseName);
+        session.setGlobal("ruleData", model);
         session.insert(insertParam);
         session.fireAllRules();
         session.dispose();
-        return globalData;
+        return model;
     }
 
     /**
@@ -180,23 +185,5 @@ public class RuleManager {
             // 实现动态更新
             ((KieContainerImpl) kieContainer).updateToKieModule((InternalKieModule) kieBuilder.getKieModule());
         }
-    }
-
-    /**
-     * 触发规则，此处简单模拟，会向规则中插入一个Integer类型的值
-     * @param kieBaseName
-     * @param param
-     * @return
-     */
-    public String fireRule(String kieBaseName,
-                           Integer param) {
-        // 创建kieSession
-        KieSession kieSession = kieContainer.newKieSession(kieBaseName + "-session");
-        StringBuilder resultInfo = new StringBuilder();
-        kieSession.setGlobal("resultInfo", resultInfo);
-        kieSession.insert(param);
-        kieSession.fireAllRules();
-        kieSession.dispose();
-        return resultInfo.toString();
     }
 }

@@ -1,10 +1,11 @@
-package ru.reimu.alice.drools;
+package ru.reimu.alice.drools.config;
 
 import org.kie.api.KieServices;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.reimu.alice.drools.RuleManager;
 
 /**
  * @author Tomonori

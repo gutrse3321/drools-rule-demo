@@ -5,6 +5,8 @@ import org.springframework.stereotype.Repository;
 import ru.reimu.alice.datasource.jpa.config.ISimpleRepository;
 import ru.reimu.alice.persist.entity.RuleEntity;
 
+import java.util.List;
+
 /**
  * @author Tomonori
  * @mail gutrse3321@live.com
@@ -17,4 +19,7 @@ public interface RuleRepository extends ISimpleRepository<RuleEntity, Long> {
             "and kie_base_name = ?1 " +
             "and kie_package_name = ?2", nativeQuery = true)
     RuleEntity findByRuleName(String kieBaseName, String kiePackageName);
+
+    @Query(value = "select * from rule_info where data_state = 2", nativeQuery = true)
+    List<RuleEntity> getAll();
 }

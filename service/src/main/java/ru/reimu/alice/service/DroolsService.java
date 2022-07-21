@@ -3,8 +3,9 @@ package ru.reimu.alice.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.reimu.alice.constant.ErrorCode;
-import ru.reimu.alice.drools.IDroolsService;
+import ru.reimu.alice.drools.config.IDroolsService;
 import ru.reimu.alice.drools.RuleManager;
+import ru.reimu.alice.drools.model.RuleDataModel;
 import ru.reimu.alice.exception.EXPF;
 import ru.reimu.alice.persist.entity.RuleEntity;
 import ru.reimu.alice.persist.repository.RuleRepository;
@@ -31,9 +32,9 @@ public class DroolsService implements IDroolsService<RuleEntity> {
      * @return
      * @throws Exception
      */
-    public String triggerRule(String kieBaseName,
-                              Integer insertParam) throws Exception {
-        return ruleManager.fireRule(kieBaseName, insertParam, "str", "冒号后面的是drl加上的:");
+    public RuleDataModel<Object> triggerRule(String kieBaseName,
+                                             Integer insertParam) throws Exception {
+        return ruleManager.fireRule(kieBaseName, insertParam);
     }
 
     /**
@@ -78,6 +79,7 @@ public class DroolsService implements IDroolsService<RuleEntity> {
      * @param entity
      */
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public void deleteRule(RuleEntity entity,
                            String ruleName) throws Exception {
         RuleEntity rule = ruleRepository.extFindOne(entity.getId());
@@ -85,7 +87,7 @@ public class DroolsService implements IDroolsService<RuleEntity> {
             throw EXPF.exception(ErrorCode.DataNotExists, "规则不存在", true);
         }
 
-        ruleRepository.extDeleteBySoft(entity.getId());
+        ruleRepository.extDeleteByPhysically(entity.getId());
         ruleManager.deleteDroolsRule(entity.getKieBaseName(), entity.getKiePackageName(), ruleName);
     }
 }
