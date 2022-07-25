@@ -9,6 +9,9 @@ import ru.reimu.alice.persist.entity.RuleEntity;
 import ru.reimu.alice.service.DroolsService;
 import ru.reimu.alice.springExtension.view.MVF;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
  * @author Tomonori
  * @mail gutrse3321@live.com
@@ -48,5 +51,20 @@ public class DroolsController {
         ent.setId(ruleId);
         droolsService.deleteRule(ent, null);
         return MVF.msgData(Constant.MsgData.Del);
+    }
+
+    @PostMapping("getRuleList")
+    public ModelAndView getRuleList() throws Exception {
+        return MVF.filterData(droolsService.getRuleList());
+    }
+
+    @PostMapping("editRule")
+    public ModelAndView editRule(@NotNull Long ruleId,
+                                 @NotBlank String content) throws Exception {
+        RuleEntity ent = new RuleEntity();
+        ent.setId(ruleId);
+        ent.setRuleContent(content);
+        droolsService.updateRule(ent);
+        return MVF.msgData(Constant.MsgData.Edit);
     }
 }

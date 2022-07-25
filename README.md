@@ -45,3 +45,43 @@
   "code": 200
 }
 ```
+### 修改规则
+- ``/editRule``
+- params
+```java
+* Long ruleId;    //规则id
+* String content; //drools语法规则内容
+```
+- response
+```json
+{
+    "message": "修改成功",
+    "code": 200
+}
+```
+### 获取规则列表
+- ``/getRuleList``
+- params
+```java
+```
+- response
+```json
+{
+  "data": {
+    "list": [
+      {
+        "dataState": 2,
+        "createdTime": "1658715670531",
+        "creatorId": null,
+        "updatedTime": "1658715670531",
+        "updatorId": null,
+        "id": 15,
+        "kieBaseName": "test",
+        "kiePackageName": "test_package",
+        "ruleContent": "package test_package\r\n\r\nglobal ru.reimu.alice.drools.model.RuleDataModel ruleData\r\n\r\nrule \"rule-0\"\r\n    when\r\n        $i: Integer(intValue() > 3)\r\n    then\r\n         ruleData.setResult($i);\r\nend"
+      }
+    ]
+  },
+  "code": 200
+}
+```

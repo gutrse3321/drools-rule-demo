@@ -11,6 +11,7 @@ import ru.reimu.alice.persist.entity.RuleEntity;
 import ru.reimu.alice.persist.repository.RuleRepository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author Tomonori
@@ -35,6 +36,15 @@ public class DroolsService implements IDroolsService<RuleEntity> {
     public RuleDataModel<Object> triggerRule(String kieBaseName,
                                              Integer insertParam) throws Exception {
         return ruleManager.fireRule(kieBaseName, insertParam);
+    }
+
+    /**
+     * 获取所有规则
+     * @return
+     * @throws Exception
+     */
+    public List<RuleEntity> getRuleList() throws Exception {
+        return ruleRepository.getAll();
     }
 
     /**
@@ -63,14 +73,11 @@ public class DroolsService implements IDroolsService<RuleEntity> {
             throw EXPF.exception(ErrorCode.DataNotExists, "规则不存在", true);
         }
 
-        RuleEntity findByName = ruleRepository.findByRuleName(entity.getKieBaseName(), entity.getKiePackageName());
-        if (findByName != null && !rule.getId().equals(findByName.getId())) {
-            throw EXPF.exception(ErrorCode.DataDuplicated, "此规则已在此分组存在", true);
-        }
-        ruleRepository.save(entity);
+        rule.setRuleContent(entity.getRuleContent());
+        ruleRepository.save(rule);
         //添加到drools会话容器
-        ruleManager.addOrUpdateRule(entity.getId(), entity.getKieBaseName(), entity.getKiePackageName(),
-                entity.getRuleContent());
+        ruleManager.addOrUpdateRule(rule.getId(), rule.getKieBaseName(), rule.getKiePackageName(),
+                rule.getRuleContent());
     }
 
     /**
