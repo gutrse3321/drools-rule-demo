@@ -88,11 +88,10 @@ public class RuleManager {
      */
     public KieBaseModel existsKieBase(String kieBaseName) {
         if (null == kieModuleModel) {
+            log.info("需要创建KieBase: {}", kieBaseName);
             return null;
         }
-        KieBaseModel kieBaseModel = kieModuleModel.getKieBaseModels().get(kieBaseName);
-        log.info("需要创建KieBase: {}", kieBaseName);
-        return kieBaseModel;
+        return kieModuleModel.getKieBaseModels().get(kieBaseName);
     }
 
     /**
@@ -173,6 +172,7 @@ public class RuleManager {
             for (Message message : messages) {
                 log.error(message.getText());
             }
+            kieFileSystem.delete(file);
             throw EXPF.exception(ErrorCode.NoPermissionToUse, "规则内容语法有误", true);
         }
         // KieContainer只有第一次时才需要创建，之后就是使用这个
@@ -182,6 +182,5 @@ public class RuleManager {
             // 实现动态更新
             ((KieContainerImpl) kieContainer).updateToKieModule((InternalKieModule) kieBuilder.getKieModule());
         }
-        kieFileSystem.delete(file);
     }
 }
