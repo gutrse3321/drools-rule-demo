@@ -84,18 +84,15 @@ public class RuleManager {
     }
 
     /**
-     * 判断该kbase是否存在
+     * 判断该kbase是否存在，返回model
      */
-    public boolean existsKieBase(String kieBaseName) {
-        if (null == kieContainer) {
-            return false;
+    public KieBaseModel existsKieBase(String kieBaseName) {
+        if (null == kieModuleModel) {
+            return null;
         }
-        Collection<String> kieBaseNames = kieContainer.getKieBaseNames();
-        if (kieBaseNames.contains(kieBaseName)) {
-            return true;
-        }
+        KieBaseModel kieBaseModel = kieModuleModel.getKieBaseModels().get(kieBaseName);
         log.info("需要创建KieBase: {}", kieBaseName);
-        return false;
+        return kieBaseModel;
     }
 
     /**
@@ -107,9 +104,9 @@ public class RuleManager {
     public void deleteDroolsRule(String kieBaseName,
                                  String packageName,
                                  String ...ruleName) {
-        if (existsKieBase(kieBaseName)) {
+        if (existsKieBase(kieBaseName) != null) {
             KieBase kieBase = kieContainer.getKieBase(kieBaseName);
-            if (ruleName.length > 0) {
+            if (ruleName.length > 0 && ruleName[0] != null) {
                 for (String s : ruleName) {
                     kieBase.removeRule(packageName, s);
                 }
@@ -118,6 +115,8 @@ public class RuleManager {
                 for (Rule rule : kiePackage.getRules()) {
                     kieBase.removeRule(packageName, rule.getName());
                 }
+                kieBase.removeKiePackage(packageName);
+                kieModuleModel.removeKieBaseModel(kieBaseName);
             }
 
             log.info("删除kieBase:[{}]包:[{}]下的规则", kieBaseName, packageName);
@@ -129,10 +128,10 @@ public class RuleManager {
                                 String kiePackageName,
                                 String ruleContent) throws Exception {
         // 判断该kbase是否存在
-        boolean existsKieBase = existsKieBase(kieBaseName);
         // 该对象对应kmodule.xml中的kbase标签
-        KieBaseModel kieBaseModel;
-        if (!existsKieBase) {
+        // 获取到已经存在的kbase对象
+        KieBaseModel kieBaseModel = existsKieBase(kieBaseName);
+        if (kieBaseModel == null) {
             // 创建一个kbase
             kieBaseModel = kieModuleModel.newKieBaseModel(kieBaseName);
             // 不是默认的kieBase
@@ -144,8 +143,6 @@ public class RuleManager {
                     // 不是默认session
                     .setDefault(false);
         } else {
-            // 获取到已经存在的kbase对象
-            kieBaseModel = kieModuleModel.getKieBaseModels().get(kieBaseName);
             // 获取到packages
             List<String> packages = kieBaseModel.getPackages();
             if (!packages.contains(kiePackageName)) {
@@ -185,5 +182,6 @@ public class RuleManager {
             // 实现动态更新
             ((KieContainerImpl) kieContainer).updateToKieModule((InternalKieModule) kieBuilder.getKieModule());
         }
+        kieFileSystem.delete(file);
     }
 }

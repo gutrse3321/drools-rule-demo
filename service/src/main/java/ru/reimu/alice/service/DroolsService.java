@@ -94,7 +94,7 @@ public class DroolsService implements IDroolsService<RuleEntity> {
             throw EXPF.exception(ErrorCode.DataNotExists, "规则不存在", true);
         }
 
-        ruleRepository.extDeleteByPhysically(entity.getId());
-        ruleManager.deleteDroolsRule(entity.getKieBaseName(), entity.getKiePackageName(), ruleName);
+        ruleRepository.extDeleteByPhysically(rule.getId());
+        ruleManager.deleteDroolsRule(rule.getKieBaseName(), rule.getKiePackageName(), ruleName);
     }
 }
